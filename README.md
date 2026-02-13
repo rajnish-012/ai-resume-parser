@@ -13,6 +13,7 @@ A modern, production-ready template for building full-stack React applications u
 - 🔒 TypeScript by default
 - 🎉 TailwindCSS for styling
 - 📖 [React Router docs](https://reactrouter.com/)
+- 🔗 Live Demo: https://ai-parseresume.vercel.app/
 
 ## Getting Started
 
