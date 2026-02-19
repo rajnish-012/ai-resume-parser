@@ -1,23 +1,70 @@
-# Welcome to React Router!
+# AI Resume Parser
 
-A modern, production-ready template for building full-stack React applications using React Router.
+AI Resume Parser is a full-stack web application that analyzes resumes (PDF) and extracts structured information such as skills, education, experience, and key sections using modern web technologies.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+The project is built using the React Router full-stack template with server-side rendering and deployed on Vercel. It also integrates Puter for browser-based file handling and storage support.
 
-## Features
+🔗 Live Demo: https://ai-parseresume.vercel.app/
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
-- 🔗 Live Demo: https://ai-parseresume.vercel.app/
+---
 
-## Getting Started
+## 🚀 Overview
 
-### Installation
+AI Resume Parser allows users to:
+
+- Upload a resume (PDF)
+- Extract structured resume data
+- View organized resume insights
+- Process files securely in the browser environment
+
+This project demonstrates full-stack architecture, SSR, file processing, modern routing, and production-ready deployment practices.
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React.js
+- React Router (Full-Stack Framework)
+- Vite
+- Tailwind CSS
+- JavaScript (ES6+)
+
+### Backend / Server-Side
+- Node.js runtime
+- Server-side rendering (SSR)
+- API routes for resume parsing
+
+### File Handling
+- Puter (browser-based file handling & storage integration)
+- PDF parsing libraries
+
+### Deployment
+- Vercel
+
+---
+
+## ✨ Features
+
+- 📄 Resume upload (PDF support)
+- 🧠 Resume text extraction & structured output
+- 📂 Browser-based file handling using Puter
+- ⚡ Server-side rendering
+- 🔥 Hot Module Replacement (HMR)
+- 🎨 Responsive UI with TailwindCSS
+- 🚀 Production-ready build setup
+- 🌐 Live deployed version
+
+---
+
+## 📦 Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/rajnish-012/ai-resume-parser.git
+cd ai-resume-parser
+
 
 Install the dependencies:
 
