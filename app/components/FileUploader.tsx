@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { formatSize } from "~/lib/utils";
 
@@ -28,27 +28,34 @@ const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
   const file = acceptedFiles[0] || null;
 
   return (
-    <div className="w-full gradient-border ">
+    <div className="w-full gradient-border">
       <div {...getRootProps()}>
         <input {...getInputProps()} />
-        <div className="space-y-4 cursor-pointer">
+        <div
+          className={`cursor-pointer rounded-xl border border-dashed p-6 text-center transition ${
+            isDragActive
+              ? "border-cyan-400 bg-cyan-50"
+              : "border-slate-300 bg-white hover:border-cyan-300 hover:bg-sky-50"
+          }`}
+        >
           {file ? (
             <div
               className="uploader-selected-file"
               onClick={(e) => e.stopPropagation()}
             >
               <img src="/images/pdf.png" alt="pdf" className="size-10" />
-              <div className="flex items-center space-x-3">
-                <div>
-                  <p className="text-sm text-gray-700 font-medium truncate max-w-xs">
+              <div className="flex min-w-0 items-center space-x-3">
+                <div className="min-w-0">
+                  <p className="max-w-xs truncate text-sm font-semibold text-slate-800">
                     {file.name}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-slate-500">
                     {formatSize(file.size)}
                   </p>
                 </div>
               </div>
-              <button className="p-2 cursor-pointer" onClick={(e) => {
+              <button className="cursor-pointer rounded-full p-2 transition hover:bg-slate-100" onClick={(e) => {
+                e.stopPropagation();
                 onFileSelect?.(null);
               }}>
                 <img src="/icons/cross.svg" alt="remove" className="w-4 h-4" />
@@ -59,11 +66,11 @@ const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
               <div className="mx-auto w-16 h-16 flex items-center justify-center mb-2">
                 <img src="/icons/info.svg" alt="Upload" className="size-20" />
               </div>
-              <p className="text-lg text-gray-500">
-                <span className="font-semibold">CLick to Upload</span> or Drap
-                and Drop
+              <p className="text-base text-slate-600 sm:text-lg">
+                <span className="font-semibold text-slate-900">Click to upload</span> or drag
+                and drop
               </p>
-              <p className="text-lg text-gray-500">
+              <p className="text-sm text-slate-500 sm:text-base">
                 PDF (max {formatSize(maxFileSize)})
               </p>
             </div>

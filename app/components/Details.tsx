@@ -47,8 +47,8 @@ const CategoryHeader = ({
   categoryScore: number;
 }) => {
   return (
-      <div className="flex flex-row gap-4 items-center py-2">
-        <p className="text-2xl font-semibold">{title}</p>
+      <div className="flex flex-row items-center gap-4 py-2">
+        <p className="text-lg font-black text-slate-950 sm:text-xl">{title}</p>
         <ScoreBadge score={categoryScore} />
       </div>
   );
@@ -60,10 +60,10 @@ const CategoryContent = ({
   tips: { type: "good" | "improve"; tip: string; explanation: string }[];
 }) => {
   return (
-      <div className="flex flex-col gap-4 items-center w-full">
-        <div className="bg-gray-50 w-full rounded-lg px-5 py-4 grid grid-cols-2 gap-4">
+      <div className="flex w-full flex-col items-center gap-4">
+        <div className="grid w-full gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 sm:grid-cols-2">
           {tips.map((tip, index) => (
-              <div className="flex flex-row gap-2 items-center" key={index}>
+              <div className="flex flex-row items-center gap-2" key={index}>
                 <img
                     src={
                       tip.type === "good" ? "/icons/check.svg" : "/icons/warning.svg"
@@ -71,22 +71,22 @@ const CategoryContent = ({
                     alt="score"
                     className="size-5"
                 />
-                <p className="text-xl text-gray-500 ">{tip.tip}</p>
+                <p className="text-sm font-bold text-slate-600">{tip.tip}</p>
               </div>
           ))}
         </div>
-        <div className="flex flex-col gap-4 w-full">
+        <div className="flex w-full flex-col gap-4">
           {tips.map((tip, index) => (
               <div
                   key={index + tip.tip}
                   className={cn(
-                      "flex flex-col gap-2 rounded-2xl p-4",
+                      "flex flex-col gap-2 rounded-2xl border p-4",
                       tip.type === "good"
-                          ? "bg-green-50 border border-green-200 text-green-700"
-                          : "bg-yellow-50 border border-yellow-200 text-yellow-700"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-amber-200 bg-amber-50 text-amber-700"
                   )}
               >
-                <div className="flex flex-row gap-2 items-center">
+                <div className="flex flex-row items-center gap-2">
                   <img
                       src={
                         tip.type === "good"
@@ -96,9 +96,9 @@ const CategoryContent = ({
                       alt="score"
                       className="size-5"
                   />
-                  <p className="text-xl font-semibold">{tip.tip}</p>
+                  <p className="text-base font-black">{tip.tip}</p>
                 </div>
-                <p>{tip.explanation}</p>
+                <p className="text-sm leading-6">{tip.explanation}</p>
               </div>
           ))}
         </div>
@@ -108,8 +108,16 @@ const CategoryContent = ({
 
 const Details = ({ feedback }: { feedback: Feedback }) => {
   return (
-      <div className="flex flex-col gap-4 w-full">
-        <Accordion>
+      <div className="flex w-full flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+        <div className="px-2 pt-2">
+          <p className="text-sm font-black uppercase tracking-wide text-blue-700">
+            Deep analysis
+          </p>
+          <h2 className="mt-1 text-2xl font-black text-slate-950!">
+            Improvement Breakdown
+          </h2>
+        </div>
+        <Accordion defaultOpen="tone-style">
           <AccordionItem id="tone-style">
             <AccordionHeader itemId="tone-style">
               <CategoryHeader

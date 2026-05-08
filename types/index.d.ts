@@ -9,6 +9,11 @@ interface Resume {
   id: string;
   companyName?: string;
   jobTitle?: string;
+  jobDescription?: string;
+  status?: "saved" | "applied" | "interview" | "rejected" | "offer";
+  createdAt?: string;
+  updatedAt?: string;
+  notes?: string;
   imagePath: string;
   resumePath: string;
   feedback: Feedback;

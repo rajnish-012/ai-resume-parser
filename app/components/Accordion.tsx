@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import React, { createContext, useContext, useState } from "react";
+import type { FC, ReactNode } from "react";
+import { createContext, useContext, useState } from "react";
 import { cn } from "~/lib/utils";
 
 interface AccordionContextType {
@@ -27,7 +27,7 @@ interface AccordionProps {
   className?: string;
 }
 
-export const Accordion: React.FC<AccordionProps> = ({
+export const Accordion: FC<AccordionProps> = ({
   children,
   defaultOpen,
   allowMultiple = false,
@@ -66,13 +66,13 @@ interface AccordionItemProps {
   className?: string;
 }
 
-export const AccordionItem: React.FC<AccordionItemProps> = ({
+export const AccordionItem: FC<AccordionItemProps> = ({
   id,
   children,
   className = "",
 }) => {
   return (
-    <div className={`overflow-hidden border-b border-gray-200 ${className}`}>
+    <div className={`overflow-hidden rounded-2xl border border-slate-200 bg-white ${className}`}>
       {children}
     </div>
   );
@@ -86,7 +86,7 @@ interface AccordionHeaderProps {
   iconPosition?: "left" | "right";
 }
 
-export const AccordionHeader: React.FC<AccordionHeaderProps> = ({
+export const AccordionHeader: FC<AccordionHeaderProps> = ({
   itemId,
   children,
   className = "",
@@ -125,7 +125,7 @@ export const AccordionHeader: React.FC<AccordionHeaderProps> = ({
       className={`
         w-full px-4 py-3 text-left
         focus:outline-none
-        transition-colors duration-200 flex items-center justify-between cursor-pointer
+        transition-colors duration-200 flex items-center justify-between cursor-pointer hover:bg-slate-50
         ${className}
       `}
     >
@@ -144,7 +144,7 @@ interface AccordionContentProps {
   className?: string;
 }
 
-export const AccordionContent: React.FC<AccordionContentProps> = ({
+export const AccordionContent: FC<AccordionContentProps> = ({
   itemId,
   children,
   className = "",
@@ -160,7 +160,7 @@ export const AccordionContent: React.FC<AccordionContentProps> = ({
         ${className}
       `}
     >
-      <div className="px-4 py-3 ">{children}</div>
+      <div className="px-4 pb-4 pt-2">{children}</div>
     </div>
   );
 };
