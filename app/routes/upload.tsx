@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import FileUploader from "~/components/FileUploader";
 import Navbar from "~/components/Navbar";
@@ -8,15 +8,28 @@ import { usePuterStore } from "~/lib/puter";
 import { generateUUID } from "~/lib/utils";
 
 const Upload = () => {
-  const { fs, ai, kv } = usePuterStore();
+  const { auth, isLoading, fs, ai, kv } = usePuterStore();
   const navigate = useNavigate();
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusText, setStatusText] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
-  const handleFileSelect = (file: File | null) => {
-    setFile(file);
+  const [companyName, setCompanyName] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+
+  // Gate the page: wait for Puter to finish initializing, then require auth.
+  useEffect(() => {
+    if (!isLoading && !auth.isAuthenticated) {
+      navigate("/auth?next=/upload");
+    }
+  }, [isLoading, auth.isAuthenticated]);
+
+  const handleFileSelect = (selected: File | null) => {
+    setFile(selected);
+    if (selected) setError(null);
   };
 
   const handleAnalyse = async ({
@@ -30,18 +43,22 @@ const Upload = () => {
     jobDescription: string;
     file: File;
   }) => {
+    let createdId: string | null = null;
+
     try {
+      setError(null);
       setIsProcessing(true);
 
       setStatusText("Uploading resume...");
       const uploadedFile = await fs.upload([file]);
 
       if (!uploadedFile) {
-        throw new Error("Failed to upload resume file.");
+        throw new Error("Failed to upload your resume. Please try again.");
       }
 
       const uuid = generateUUID();
-      let imagePath: string | null = null;
+      createdId = uuid;
+      let imagePath = "";
 
       setStatusText("Converting resume preview...");
       try {
@@ -49,13 +66,15 @@ const Upload = () => {
 
         if (imageFile?.file) {
           const uploadedImage = await fs.upload([imageFile.file]);
-          imagePath = uploadedImage?.path || null;
+          imagePath = uploadedImage?.path || "";
         }
-      } catch (error) {
-        console.error("Image conversion error:", error);
+      } catch (conversionError) {
+        // A failed preview shouldn't block the analysis — log and continue.
+        console.error("Image conversion error:", conversionError);
       }
 
-      const data: any = {
+      const now = new Date().toISOString();
+      const data: Resume = {
         id: uuid,
         resumePath: uploadedFile.path,
         imagePath,
@@ -63,10 +82,10 @@ const Upload = () => {
         jobTitle,
         jobDescription,
         status: "saved",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: now,
+        updatedAt: now,
         notes: "",
-        feedback: null,
+        feedback: null as unknown as Feedback,
       };
 
       await kv.set(`resume:${uuid}`, JSON.stringify(data));
@@ -81,26 +100,31 @@ const Upload = () => {
       );
 
       if (!feedback) {
-        throw new Error("AI failed to analyze resume.");
+        throw new Error("The AI didn't return a result. Please try again.");
       }
 
+      const content = feedback.message.content;
       const feedbackText =
-        typeof feedback.message.content === "string"
-          ? feedback.message.content
-          : feedback.message.content[0].text;
+        typeof content === "string" ? content : content?.[0]?.text;
+
+      if (!feedbackText) {
+        throw new Error("The AI returned an empty response. Please try again.");
+      }
 
       const cleanText = feedbackText
         .replace(/```json/g, "")
         .replace(/```/g, "")
         .trim();
 
-      let parsedFeedback;
+      let parsedFeedback: Feedback;
 
       try {
         parsedFeedback = JSON.parse(cleanText);
-      } catch (error) {
+      } catch (parseError) {
         console.error("AI JSON Error:", cleanText);
-        throw new Error("AI returned invalid JSON format.");
+        throw new Error(
+          "The AI response couldn't be read. Please try analyzing again.",
+        );
       }
 
       data.feedback = parsedFeedback;
@@ -109,9 +133,10 @@ const Upload = () => {
 
       setStatusText("Analysis complete. Opening report...");
       navigate(`/resume/${uuid}`);
-    } catch (error: any) {
-      console.error(error);
-      setStatusText(error.message || "Something went wrong.");
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.message || "Something went wrong. Please try again.");
+      setStatusText("");
       setIsProcessing(false);
     }
   };
@@ -120,20 +145,14 @@ const Upload = () => {
     e.preventDefault();
 
     if (!file) {
-      alert("Please upload a resume file.");
+      setError("Please attach a PDF resume before analyzing.");
       return;
     }
 
-    const formData = new FormData(e.currentTarget);
-
-    const companyName = formData.get("company-name") as string;
-    const jobTitle = formData.get("job-title") as string;
-    const jobDescription = formData.get("job-description") as string;
-
     handleAnalyse({
-      companyName,
-      jobTitle,
-      jobDescription,
+      companyName: companyName.trim(),
+      jobTitle: jobTitle.trim(),
+      jobDescription: jobDescription.trim(),
       file,
     });
   };
@@ -226,6 +245,18 @@ const Upload = () => {
                 onSubmit={handleSubmit}
                 className="w-full rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm sm:p-6"
               >
+                {error && (
+                  <div
+                    role="alert"
+                    className="mb-6 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700"
+                  >
+                    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-black text-rose-700">
+                      !
+                    </span>
+                    <p>{error}</p>
+                  </div>
+                )}
+
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="form-div">
                     <label htmlFor="company-name">Company Name</label>
@@ -234,6 +265,8 @@ const Upload = () => {
                       name="company-name"
                       id="company-name"
                       placeholder="Acme Inc."
+                      value={companyName}
+                      onChange={(event) => setCompanyName(event.target.value)}
                       required
                     />
                   </div>
@@ -245,6 +278,8 @@ const Upload = () => {
                       name="job-title"
                       id="job-title"
                       placeholder="Frontend Developer"
+                      value={jobTitle}
+                      onChange={(event) => setJobTitle(event.target.value)}
                       required
                     />
                   </div>
@@ -257,6 +292,8 @@ const Upload = () => {
                     name="job-description"
                     id="job-description"
                     placeholder="Paste the role requirements here..."
+                    value={jobDescription}
+                    onChange={(event) => setJobDescription(event.target.value)}
                     required
                   />
                 </div>
@@ -266,7 +303,11 @@ const Upload = () => {
                   <FileUploader onFileSelect={handleFileSelect} />
                 </div>
 
-                <button className="primary-button" type="submit">
+                <button
+                  className="primary-button disabled:cursor-not-allowed disabled:opacity-60"
+                  type="submit"
+                  disabled={!file}
+                >
                   Analyze Resume
                 </button>
               </form>
